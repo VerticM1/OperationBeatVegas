@@ -3,430 +3,444 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Edge Analyzer — Prop Intelligence</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<title>Edge Analyzer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0d0f12;--bg2:#13161b;--bg3:#1a1e25;
-  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
-  --text:#e2e4e9;--muted:#6b7280;
-  --green:#22d3a0;--red:#f4645f;--amber:#f59e0b;--blue:#60a5fa;
-  --accent:#22d3a0;
-  --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
+  --bg:#080a0e;--surface:#0f1218;--surface2:#161b24;--surface3:#1d2330;
+  --border:rgba(255,255,255,0.05);--border2:rgba(255,255,255,0.1);--border3:rgba(255,255,255,0.18);
+  --text:#dde1ea;--text2:#8892a4;--text3:#4d5668;
+  --green:#1fd6a0;--green-dim:rgba(31,214,160,0.12);
+  --red:#ff5f57;--red-dim:rgba(255,95,87,0.12);
+  --amber:#f0a30a;--amber-dim:rgba(240,163,10,0.12);
+  --blue:#4d9fff;--blue-dim:rgba(77,159,255,0.1);
+  --accent:#1fd6a0;
+  --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;
+  --r:10px;--rs:6px;
 }
-body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;padding:2rem 1rem 4rem}
-.shell{max-width:680px;margin:0 auto}
+html,body{height:100%;background:var(--bg)}
+body{font-family:var(--sans);color:var(--text);min-height:100vh;padding:2.5rem 1.25rem 5rem;-webkit-font-smoothing:antialiased}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,0.013) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.013) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+.shell{max-width:660px;margin:0 auto;position:relative;z-index:1}
 
-.header{display:flex;align-items:baseline;gap:10px;margin-bottom:1.5rem;border-bottom:0.5px solid var(--border);padding-bottom:1rem}
-.header-title{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:0.08em;color:var(--accent);text-transform:uppercase}
-.header-sub{font-size:12px;color:var(--muted);font-family:var(--mono)}
+.hdr{margin-bottom:2rem}
+.hdr-eye{font-family:var(--mono);font-size:10px;letter-spacing:0.2em;color:var(--accent);text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.hdr-eye::before{content:'';width:16px;height:1px;background:var(--accent)}
+.hdr-t{font-size:22px;font-weight:600;letter-spacing:-0.02em;color:#fff;line-height:1.2}
+.hdr-s{font-size:13px;color:var(--text2);margin-top:4px;font-weight:300}
 
-.api-bar{background:var(--bg2);border:0.5px solid var(--border2);border-radius:8px;padding:12px 14px;margin-bottom:1.5rem;display:flex;align-items:center;gap:10px}
-.api-bar label{font-size:11px;font-family:var(--mono);color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap;margin:0}
-.api-bar input{flex:1;background:transparent;border:none;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;letter-spacing:0.03em}
-.api-dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex-shrink:0;transition:background 0.2s}
-.api-dot.ok{background:var(--green)}
+.api-bar{background:var(--surface);border:0.5px solid var(--border2);border-radius:var(--r);padding:3px 3px 3px 14px;margin-bottom:1.75rem;display:flex;align-items:center;gap:10px}
+.api-lbl{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.12em;text-transform:uppercase;white-space:nowrap}
+.api-bar input{flex:1;background:transparent;border:none;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;padding:8px 4px}
+.api-bar input::placeholder{color:var(--text3)}
+.api-st{font-family:var(--mono);font-size:10px;letter-spacing:0.08em;padding:7px 12px;border-radius:7px;border:0.5px solid var(--border2);color:var(--text3);transition:all 0.2s;white-space:nowrap;background:var(--surface2)}
+.api-st.ok{color:var(--green);border-color:rgba(31,214,160,0.3);background:var(--green-dim)}
 
-.section{margin-bottom:1.25rem}
-.row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-label{display:block;font-size:11px;font-family:var(--mono);color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:5px}
-input[type=text],input[type=number],select,textarea{
-  width:100%;background:var(--bg2);border:0.5px solid var(--border2);border-radius:6px;
-  color:var(--text);font-family:var(--sans);font-size:14px;padding:9px 11px;outline:none;transition:border-color 0.15s
+.card{background:var(--surface);border:0.5px solid var(--border2);border-radius:var(--r);margin-bottom:12px;overflow:hidden}
+.card-hdr{padding:12px 16px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-family:var(--mono);font-size:10px;letter-spacing:0.14em;color:var(--text3);text-transform:uppercase}
+.card-body{padding:16px}
+
+.btn-sm{font-family:var(--mono);font-size:10px;letter-spacing:0.07em;padding:4px 10px;border-radius:5px;cursor:pointer;transition:all 0.15s;border:0.5px solid;display:flex;align-items:center;gap:5px;background:transparent}
+.btn-blue{color:var(--blue);border-color:rgba(77,159,255,0.25);background:var(--blue-dim)}
+.btn-blue:hover{background:rgba(77,159,255,0.2);border-color:rgba(77,159,255,0.4)}
+.btn-green{color:var(--green);border-color:rgba(31,214,160,0.25);background:var(--green-dim)}
+.btn-green:hover{background:rgba(31,214,160,0.2);border-color:rgba(31,214,160,0.4)}
+.btn-ghost{color:var(--text2);border-color:var(--border2);background:var(--surface2)}
+.btn-ghost:hover{color:var(--text);border-color:var(--border3)}
+.btn-sm:disabled{opacity:0.3;cursor:not-allowed}
+
+.field{margin-bottom:14px}.field:last-child{margin-bottom:0}
+.flbl{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+input[type=text],input[type=number],input[type=password],select,textarea{
+  width:100%;background:var(--surface2);border:0.5px solid var(--border2);border-radius:var(--rs);
+  color:var(--text);font-family:var(--sans);font-size:14px;padding:10px 12px;outline:none;transition:border-color 0.15s,background 0.15s;appearance:none;-webkit-appearance:none
 }
-input[type=text]:focus,input[type=number]:focus,select:focus,textarea:focus{border-color:var(--accent)}
-select option{background:#1a1e25}
-textarea{resize:vertical;min-height:100px;font-family:var(--mono);font-size:12px;line-height:1.6}
+input:focus,select:focus,textarea:focus{border-color:rgba(31,214,160,0.45);background:var(--surface3)}
+input::placeholder,textarea::placeholder{color:var(--text3)}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234d5668'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+select option{background:#161b24}
+textarea{resize:vertical;min-height:90px;font-family:var(--mono);font-size:12px;line-height:1.65}
 
-.game-count-label{font-size:11px;font-family:var(--mono);color:var(--muted);margin-bottom:6px;letter-spacing:0.05em}
-.game-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:6px}
-.game-cell{background:var(--bg2);border:0.5px solid var(--border2);border-radius:5px;padding:6px 4px;text-align:center}
-.game-cell label{font-size:10px;color:var(--muted);margin-bottom:3px;text-transform:none;letter-spacing:0}
-.game-cell input{background:transparent;border:none;text-align:center;font-family:var(--mono);font-size:15px;font-weight:500;padding:2px 0;color:var(--text);width:100%}
-.game-cell input:focus{border:none;outline:none}
+.game-row{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.gc{background:var(--surface2);border:0.5px solid var(--border2);border-radius:var(--rs);padding:8px 4px;text-align:center;transition:border-color 0.15s,background 0.15s}
+.gc:focus-within{border-color:rgba(31,214,160,0.4);background:var(--surface3)}
+.gc-lbl{font-family:var(--mono);font-size:9px;color:var(--text3);margin-bottom:4px}
+.gc input{background:transparent;border:none;text-align:center;font-family:var(--mono);font-size:16px;font-weight:500;padding:0;color:var(--text);width:100%;outline:none}
+.gc.filled{border-color:rgba(31,214,160,0.18);background:rgba(31,214,160,0.03)}
+.gc.filled .gc-lbl{color:rgba(31,214,160,0.6)}
+.gc.over input{color:var(--green)}
+.gc.under input{color:var(--red)}
 
-.context-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
-.context-label-text{font-size:11px;font-family:var(--mono);color:var(--muted);letter-spacing:0.06em;text-transform:uppercase}
-.scout-btn{
-  display:flex;align-items:center;gap:6px;background:transparent;
-  border:0.5px solid var(--border2);border-radius:5px;color:var(--blue);
-  font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:0.05em;
-  padding:4px 10px;cursor:pointer;transition:border-color 0.15s;text-transform:uppercase
-}
-.scout-btn:hover{border-color:var(--blue)}
-.scout-btn:disabled{opacity:0.35;cursor:not-allowed}
-.context-sourced{border-color:rgba(96,165,250,0.4)!important}
-
-.scout-status{font-size:11px;font-family:var(--mono);color:var(--muted);margin-top:5px;min-height:16px;display:flex;align-items:center;gap:6px}
-.scout-dot{width:5px;height:5px;border-radius:50%;background:var(--blue);animation:blink 1s ease-in-out infinite;display:none}
-.scout-dot.show{display:inline-block}
-
-.source-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
-.source-tag{font-size:10px;font-family:var(--mono);background:rgba(96,165,250,0.08);color:var(--blue);border:0.5px solid rgba(96,165,250,0.2);border-radius:4px;padding:2px 7px}
-
-.analyze-btn{
-  width:100%;background:var(--accent);color:#0d0f12;border:none;border-radius:6px;
-  font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:0.08em;
-  text-transform:uppercase;padding:13px;cursor:pointer;transition:opacity 0.15s,transform 0.1s;margin-top:0.25rem
-}
-.analyze-btn:hover{opacity:0.88}
+.analyze-btn{width:100%;background:var(--accent);color:#061510;border:none;border-radius:var(--rs);font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;padding:14px 20px;cursor:pointer;transition:opacity 0.15s,transform 0.1s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px}
+.analyze-btn:hover{opacity:0.87}
 .analyze-btn:active{transform:scale(0.99)}
-.analyze-btn:disabled{opacity:0.35;cursor:not-allowed}
+.analyze-btn:disabled{opacity:0.3;cursor:not-allowed}
 
-.loading-row{display:none;align-items:center;gap:6px;font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:1rem;justify-content:center}
-.loading-row.show{display:flex}
-.dot-p{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:blink 1.2s ease-in-out infinite}
-.dot-p:nth-child(2){animation-delay:0.2s}
-.dot-p:nth-child(3){animation-delay:0.4s}
-@keyframes blink{0%,80%,100%{opacity:0.2;transform:scale(0.8)}40%{opacity:1;transform:scale(1)}}
+.status-row{min-height:22px;display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--text3);margin-top:7px;padding:0 1px}
+.sdot{width:4px;height:4px;border-radius:50%;display:none;flex-shrink:0}
+.sdot.pulse{display:block;background:var(--blue);animation:blink 1s ease-in-out infinite}
+.sdot.ok{display:block;background:var(--green);animation:none}
+@keyframes blink{0%,100%{opacity:0.2}50%{opacity:1}}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.tag{font-size:10px;font-family:var(--mono);background:var(--blue-dim);color:var(--blue);border:0.5px solid rgba(77,159,255,0.2);border-radius:4px;padding:2px 8px}
 
-.error-box{display:none;background:rgba(244,100,95,0.07);border:0.5px solid rgba(244,100,95,0.25);border-radius:6px;padding:10px 14px;font-size:13px;color:var(--red);margin-top:1rem;font-family:var(--mono);line-height:1.5}
-.error-box.show{display:block}
+.lbar{height:2px;background:var(--surface2);border-radius:1px;margin-top:10px;overflow:hidden;display:none}
+.lbar.show{display:block}
+.lbar-fill{height:100%;background:linear-gradient(90deg,transparent,var(--accent),transparent);width:40%;animation:sweep 1.4s ease-in-out infinite}
+@keyframes sweep{0%{transform:translateX(-200%)}100%{transform:translateX(500%)}}
 
-.result-panel{display:none;margin-top:1.5rem;border:0.5px solid var(--border2);border-radius:10px;overflow:hidden}
-.result-panel.visible{display:block}
-.result-header{background:var(--bg3);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:0.5px solid var(--border)}
-.result-label{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:0.07em;text-transform:uppercase}
-.conf-badge{font-family:var(--mono);font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;letter-spacing:0.05em}
-.conf-high{background:rgba(34,211,160,0.12);color:var(--green)}
-.conf-med{background:rgba(245,158,11,0.12);color:var(--amber)}
-.conf-low{background:rgba(244,100,95,0.12);color:var(--red)}
-.result-body{padding:16px}
+.err{display:none;background:rgba(255,95,87,0.06);border:0.5px solid rgba(255,95,87,0.2);border-radius:var(--rs);padding:10px 14px;font-size:12px;font-family:var(--mono);color:var(--red);margin-top:10px;line-height:1.5}
+.err.show{display:block}
 
-.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem}
-.stat-box{background:var(--bg3);border-radius:6px;padding:10px 12px;border:0.5px solid var(--border)}
-.stat-box-label{font-size:10px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px}
-.stat-box-val{font-family:var(--mono);font-size:18px;font-weight:500}
+.result{display:none;margin-top:16px;border:0.5px solid var(--border2);border-radius:var(--r);overflow:hidden;animation:up 0.3s ease}
+.result.show{display:block}
+@keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-.edge-wrap{margin-bottom:1.25rem}
-.edge-labels{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:6px}
-.edge-track{height:8px;background:var(--bg3);border-radius:4px;position:relative;overflow:hidden}
-.edge-fill{height:100%;border-radius:4px;position:absolute;transition:width 0.8s cubic-bezier(.4,0,.2,1),left 0.8s cubic-bezier(.4,0,.2,1)}
-.edge-mid{position:absolute;left:50%;top:-2px;width:1px;height:12px;background:var(--border2);z-index:1}
-.edge-score-row{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
-.edge-num{font-family:var(--mono);font-size:28px;font-weight:600;line-height:1}
-.dir-badge{font-family:var(--mono);font-size:18px;font-weight:600;padding:5px 16px;border-radius:6px;letter-spacing:0.05em}
-.dir-over{background:rgba(34,211,160,0.1);color:var(--green);border:0.5px solid rgba(34,211,160,0.25)}
-.dir-under{background:rgba(244,100,95,0.1);color:var(--red);border:0.5px solid rgba(244,100,95,0.25)}
-.dir-none{background:rgba(107,114,128,0.1);color:var(--muted);border:0.5px solid var(--border2)}
+.res-top{background:var(--surface);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--border)}
+.res-player{font-size:13px;font-weight:500;color:var(--text)}
+.res-sub{font-family:var(--mono);font-size:11px;color:var(--text2);margin-top:2px}
+.conf{font-family:var(--mono);font-size:10px;letter-spacing:0.08em;padding:4px 10px;border-radius:20px;font-weight:500}
+.cH{background:var(--green-dim);color:var(--green);border:0.5px solid rgba(31,214,160,0.3)}
+.cM{background:var(--amber-dim);color:var(--amber);border:0.5px solid rgba(240,163,10,0.3)}
+.cL{background:var(--red-dim);color:var(--red);border:0.5px solid rgba(255,95,87,0.3)}
 
-.divider{height:0.5px;background:var(--border);margin:1rem 0}
-.section-label{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:10px}
-.factor-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;font-size:13px;line-height:1.5}
-.f-dot{width:6px;height:6px;border-radius:50%;margin-top:5px;flex-shrink:0}
-.f-bull{background:var(--green)}
-.f-bear{background:var(--red)}
-.f-neut{background:var(--muted)}
-.verdict-box{background:var(--bg3);border-radius:6px;padding:12px 14px;border:0.5px solid var(--border);font-size:13px;line-height:1.6;color:var(--text)}
+.res-body{padding:18px;background:var(--surface)}
+.ss{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+.sb{background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--rs);padding:10px 12px}
+.sb-l{font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px}
+.sb-v{font-family:var(--mono);font-size:20px;font-weight:500}
+
+.em{margin-bottom:18px}
+.em-poles{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:6px}
+.track{height:6px;background:var(--surface2);border-radius:3px;position:relative;overflow:hidden}
+.tf{height:100%;border-radius:3px;position:absolute;transition:width 0.9s cubic-bezier(.4,0,.2,1),left 0.9s cubic-bezier(.4,0,.2,1)}
+.tc{position:absolute;left:50%;top:-3px;width:1px;height:12px;background:var(--border3);z-index:1}
+.er{display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px}
+.es{font-family:var(--mono);font-size:36px;font-weight:500;line-height:1;letter-spacing:-0.02em}
+.es-sub{font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-top:2px}
+.dir{font-family:var(--mono);font-size:14px;font-weight:500;padding:8px 20px;border-radius:var(--rs);letter-spacing:0.1em}
+.dO{background:var(--green-dim);color:var(--green);border:0.5px solid rgba(31,214,160,0.3)}
+.dU{background:var(--red-dim);color:var(--red);border:0.5px solid rgba(255,95,87,0.3)}
+.dN{background:var(--surface3);color:var(--text2);border:0.5px solid var(--border2)}
+
+.sep{height:0.5px;background:var(--border);margin:16px 0}
+.slbl{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:12px}
+.factors{display:flex;flex-direction:column;gap:8px}
+.fac{display:flex;align-items:flex-start;gap:10px;font-size:13px;line-height:1.55;color:var(--text2)}
+.fpip{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.pb{background:var(--green)}.pr{background:var(--red)}.pn{background:var(--text3)}
+.verdict{background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--rs);padding:14px;font-size:13px;line-height:1.65;color:var(--text2);font-style:italic}
+
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:0.5px solid var(--border2);border-radius:var(--rs);font-family:var(--mono);font-size:11px;color:var(--text2);padding:10px 14px;z-index:999;opacity:0;transform:translateY(6px);transition:all 0.2s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
 </style>
 </head>
 <body>
 <div class="shell">
 
-  <div class="header">
-    <span class="header-title">Edge Analyzer</span>
-    <span class="header-sub">// prop intelligence system</span>
+  <div class="hdr">
+    <div class="hdr-eye">Prop Intelligence</div>
+    <div class="hdr-t">Edge Analyzer</div>
+    <div class="hdr-s">Find mispriced lines before the market corrects</div>
   </div>
 
   <div class="api-bar">
-    <label>API Key</label>
-    <input type="password" id="apiKey" placeholder="sk-ant-..." oninput="checkKey()"/>
-    <div class="api-dot" id="apiDot"></div>
+    <span class="api-lbl">Key</span>
+    <input type="password" id="apiKey" placeholder="sk-ant-api03-..." autocomplete="off" oninput="onKeyInput()"/>
+    <div class="api-st" id="apiSt">not set</div>
   </div>
 
-  <div class="section row-3">
-    <div>
-      <label>Player name</label>
-      <input type="text" id="player" placeholder="LeBron James" value="LeBron James"/>
+  <!-- Prop -->
+  <div class="card">
+    <div class="card-hdr">
+      <span class="card-title">Prop</span>
+      <button class="btn-sm btn-ghost" onclick="clearAll()">✕ clear all</button>
     </div>
-    <div>
-      <label>Stat type</label>
-      <select id="stat">
-        <option>Points</option>
-        <option>Rebounds</option>
-        <option>Assists</option>
-        <option>3-Pointers Made</option>
-        <option>Points + Rebounds</option>
-        <option>Points + Assists</option>
-        <option>Points + Rebounds + Assists</option>
-        <option>Steals</option>
-        <option>Blocks</option>
-      </select>
-    </div>
-    <div>
-      <label>Prop line</label>
-      <input type="number" id="line" placeholder="22.5" step="0.5" value="22.5"/>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="game-count-label">Last 7 games — enter stat values (leave blank if DNP)</div>
-    <div class="game-grid">
-      <div class="game-cell"><label>G1 newest</label><input type="number" id="g1" placeholder="—" step="0.5" value="22"/></div>
-      <div class="game-cell"><label>G2</label><input type="number" id="g2" placeholder="—" step="0.5" value="18"/></div>
-      <div class="game-cell"><label>G3</label><input type="number" id="g3" placeholder="—" step="0.5"/></div>
-      <div class="game-cell"><label>G4</label><input type="number" id="g4" placeholder="—" step="0.5"/></div>
-      <div class="game-cell"><label>G5</label><input type="number" id="g5" placeholder="—" step="0.5"/></div>
-    </div>
-    <div class="game-grid" style="margin-top:6px">
-      <div class="game-cell"><label>G6</label><input type="number" id="g6" placeholder="—" step="0.5"/></div>
-      <div class="game-cell"><label>G7</label><input type="number" id="g7" placeholder="—" step="0.5"/></div>
-      <div class="game-cell" style="grid-column:span 3;display:flex;align-items:center;justify-content:center;background:transparent;border:none">
-        <span style="font-size:11px;color:var(--muted);font-family:var(--mono)">DNPs excluded from avg</span>
+    <div class="card-body">
+      <div class="g3">
+        <div class="field">
+          <div class="flbl">Player</div>
+          <input type="text" id="player" placeholder="LeBron James" value="LeBron James" oninput="onPlayerChange()"/>
+        </div>
+        <div class="field">
+          <div class="flbl">Stat</div>
+          <select id="stat" onchange="onStatChange()">
+            <option>Points</option>
+            <option>Rebounds</option>
+            <option>Assists</option>
+            <option>3-Pointers Made</option>
+            <option>Points + Rebounds</option>
+            <option>Points + Assists</option>
+            <option>Points + Rebounds + Assists</option>
+            <option>Steals</option>
+            <option>Blocks</option>
+          </select>
+        </div>
+        <div class="field">
+          <div class="flbl">Line</div>
+          <input type="number" id="line" placeholder="22.5" step="0.5" value="22.5" oninput="refreshCells()"/>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="section">
-    <div class="context-header">
-      <span class="context-label-text">Context</span>
-      <button class="scout-btn" id="scoutBtn" onclick="runScout()">⌕ Auto-scout</button>
+  <!-- Game Log -->
+  <div class="card">
+    <div class="card-hdr">
+      <span class="card-title">Last 7 games &nbsp;<span style="color:var(--text3);font-weight:400;font-family:var(--sans);letter-spacing:0;text-transform:none;font-size:11px">newest first · blank = DNP</span></span>
+      <button class="btn-sm btn-green" id="fillBtn" onclick="autoFill()">⤓ auto-fill</button>
     </div>
-    <textarea id="context" placeholder="Auto-scout will search for matchup data, injury news, pace, usage trends — or type your own intel here."></textarea>
-    <div class="scout-status" id="scoutStatus">
-      <div class="scout-dot" id="scoutDot"></div>
-      <span id="scoutText"></span>
+    <div class="card-body">
+      <div class="game-row" id="gameRow">
+        <div class="gc" id="gc0"><div class="gc-lbl">G1</div><input type="number" id="g0" placeholder="—" step="0.5" value="22" oninput="styleCell(0)"/></div>
+        <div class="gc" id="gc1"><div class="gc-lbl">G2</div><input type="number" id="g1" placeholder="—" step="0.5" value="18" oninput="styleCell(1)"/></div>
+        <div class="gc" id="gc2"><div class="gc-lbl">G3</div><input type="number" id="g2" placeholder="—" step="0.5" oninput="styleCell(2)"/></div>
+        <div class="gc" id="gc3"><div class="gc-lbl">G4</div><input type="number" id="g3" placeholder="—" step="0.5" oninput="styleCell(3)"/></div>
+        <div class="gc" id="gc4"><div class="gc-lbl">G4</div><input type="number" id="g4" placeholder="—" step="0.5" oninput="styleCell(4)"/></div>
+        <div class="gc" id="gc5"><div class="gc-lbl">G6</div><input type="number" id="g5" placeholder="—" step="0.5" oninput="styleCell(5)"/></div>
+        <div class="gc" id="gc6"><div class="gc-lbl">G7</div><input type="number" id="g6" placeholder="—" step="0.5" oninput="styleCell(6)"/></div>
+      </div>
+      <div class="status-row">
+        <div class="sdot" id="fillDot"></div>
+        <span id="fillText" style="color:var(--text3)"></span>
+      </div>
     </div>
-    <div class="source-tags" id="sourceTags"></div>
+  </div>
+
+  <!-- Context -->
+  <div class="card">
+    <div class="card-hdr">
+      <span class="card-title">Context</span>
+      <button class="btn-sm btn-blue" id="scoutBtn" onclick="runScout()">⌕ auto-scout</button>
+    </div>
+    <div class="card-body">
+      <textarea id="context" placeholder="Auto-scout pulls live matchup intel, injury reports, pace, usage trends. Add your own on top — late scratches, line movement, anything the model won't find."></textarea>
+      <div class="status-row">
+        <div class="sdot" id="scoutDot"></div>
+        <span id="scoutText" style="color:var(--text3)"></span>
+      </div>
+      <div class="tags" id="srcTags"></div>
+    </div>
   </div>
 
   <button class="analyze-btn" id="analyzeBtn" onclick="runAnalysis()">⟶ &nbsp;Analyze edge</button>
+  <div class="lbar" id="lbar"><div class="lbar-fill"></div></div>
+  <div class="err" id="errBox"></div>
 
-  <div class="loading-row" id="loadingRow">
-    <div class="dot-p"></div><div class="dot-p"></div><div class="dot-p"></div>
-    <span style="margin-left:6px">Running edge model...</span>
-  </div>
-  <div class="error-box" id="errorBox"></div>
-
-  <div class="result-panel" id="resultPanel">
-    <div class="result-header">
-      <span class="result-label" id="resultTitle">Analysis</span>
-      <span class="conf-badge" id="confBadge">—</span>
+  <!-- Result -->
+  <div class="result" id="resultPanel">
+    <div class="res-top">
+      <div>
+        <div class="res-player" id="resPlayer">—</div>
+        <div class="res-sub" id="resSub">—</div>
+      </div>
+      <div class="conf" id="confBadge">—</div>
     </div>
-    <div class="result-body">
-      <div class="stat-row">
-        <div class="stat-box"><div class="stat-box-label">Recent avg</div><div class="stat-box-val" id="recentAvg">—</div></div>
-        <div class="stat-box"><div class="stat-box-label">Prop line</div><div class="stat-box-val" id="lineDisplay">—</div></div>
-        <div class="stat-box"><div class="stat-box-label">Hit rate</div><div class="stat-box-val" id="hitRate">—</div></div>
+    <div class="res-body">
+      <div class="ss">
+        <div class="sb"><div class="sb-l">Recent avg</div><div class="sb-v" id="rAvg">—</div></div>
+        <div class="sb"><div class="sb-l">Prop line</div><div class="sb-v" id="rLine">—</div></div>
+        <div class="sb"><div class="sb-l">Hit rate</div><div class="sb-v" id="rHit">—</div></div>
       </div>
-      <div class="edge-wrap">
-        <div class="edge-labels"><span>◀ strong under</span><span>no edge</span><span>strong over ▶</span></div>
-        <div class="edge-track">
-          <div class="edge-mid"></div>
-          <div class="edge-fill" id="edgeFill"></div>
-        </div>
-        <div class="edge-score-row">
+      <div class="em">
+        <div class="em-poles"><span>◀ under</span><span>over ▶</span></div>
+        <div class="track"><div class="tc"></div><div class="tf" id="tf"></div></div>
+        <div class="er">
           <div>
-            <div style="font-size:11px;font-family:var(--mono);color:var(--muted);margin-bottom:2px">EDGE SCORE</div>
-            <div class="edge-num" id="edgeNum">—</div>
+            <div class="es" id="eScore">—</div>
+            <div class="es-sub">edge score</div>
           </div>
-          <div class="dir-badge" id="dirBadge">—</div>
+          <div class="dir" id="dirBadge">—</div>
         </div>
       </div>
-      <div class="divider"></div>
-      <div class="section-label">Key factors</div>
-      <div id="factorsList"></div>
-      <div class="divider"></div>
-      <div class="section-label">Model verdict</div>
-      <div class="verdict-box" id="verdictBox"></div>
+      <div class="sep"></div>
+      <div class="slbl">Key factors</div>
+      <div class="factors" id="factorsList"></div>
+      <div class="sep"></div>
+      <div class="slbl">Verdict</div>
+      <div class="verdict" id="verdictBox"></div>
     </div>
   </div>
 
 </div>
+<div class="toast" id="toast"></div>
+
 <script>
-function getKey(){ return document.getElementById('apiKey').value.trim(); }
+const API='https://api.anthropic.com/v1/messages';
+function key(){return document.getElementById('apiKey').value.trim();}
+function onKeyInput(){
+  const k=key(),el=document.getElementById('apiSt');
+  el.textContent=k.startsWith('sk-ant-')?'ready':'not set';
+  el.className='api-st'+(k.startsWith('sk-ant-')?' ok':'');
+}
+function hdrs(){return{'Content-Type':'application/json','x-api-key':key(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'};}
+async function apicall(body){
+  const r=await fetch(API,{method:'POST',headers:hdrs(),body:JSON.stringify(body)});
+  if(!r.ok){const t=await r.text();throw new Error(`API ${r.status}: ${t}`);}
+  return r.json();
+}
+function parseJ(raw){raw=raw.replace(/```json|```/g,'').trim();const m=raw.match(/\{[\s\S]*\}/);return JSON.parse(m?m[0]:raw);}
 
-function checkKey(){
-  const k = getKey();
-  document.getElementById('apiDot').className = 'api-dot' + (k.startsWith('sk-ant-') ? ' ok' : '');
+// Auto-clear
+let ptimer=null;
+function onPlayerChange(){
+  clearTimeout(ptimer);
+  ptimer=setTimeout(()=>{clearGames();clearCtx();hideResult();clearErr();toast('Fields cleared for new player');},1200);
+}
+function onStatChange(){clearGames();clearCtx();hideResult();clearErr();}
+function clearAll(){
+  document.getElementById('player').value='';
+  document.getElementById('line').value='';
+  clearGames();clearCtx();hideResult();clearErr();
+  document.getElementById('apiKey').value='';onKeyInput();
+  toast('All cleared');
+}
+function clearGames(){for(let i=0;i<7;i++){document.getElementById('g'+i).value='';styleCell(i);}setFill('','');}
+function clearCtx(){document.getElementById('context').value='';document.getElementById('srcTags').innerHTML='';setScout('','');}
+
+// Cell styling
+function refreshCells(){for(let i=0;i<7;i++)styleCell(i);}
+function styleCell(i){
+  const inp=document.getElementById('g'+i),cell=document.getElementById('gc'+i);
+  const v=inp.value,line=parseFloat(document.getElementById('line').value);
+  if(v===''||v===null){cell.className='gc';return;}
+  const n=parseFloat(v);
+  if(!isNaN(line)&&n>line)cell.className='gc filled over';
+  else if(!isNaN(line)&&n<line)cell.className='gc filled under';
+  else cell.className='gc filled';
 }
 
-function headers(){
-  return {
-    'Content-Type':'application/json',
-    'x-api-key': getKey(),
-    'anthropic-version':'2023-06-01',
-    'anthropic-dangerous-direct-browser-access':'true'
-  };
+// Auto-fill (1 API call w/ web search)
+async function autoFill(){
+  if(!key()){toast('Add API key first');return;}
+  const player=document.getElementById('player').value.trim();
+  const stat=document.getElementById('stat').value;
+  if(!player){toast('Enter player name first');return;}
+  const btn=document.getElementById('fillBtn');
+  btn.disabled=true;setFill('Searching recent game logs...','pulse');
+  const combo={'Points+Rebounds':'sum points + rebounds','Points+Assists':'sum points + assists','Points+Rebounds+Assists':'sum points+rebounds+assists'};
+  const note=combo[stat.replace(/ /g,'')]||'';
+  const prompt=`Search for the last 7 games ${player} has played this NBA 2024-25 season and return their ${stat} for each game.
+Return ONLY valid JSON:
+{"games":[<number or null if DNP>×7 newest first],"note":"<brief note>"}
+Exactly 7 entries. null for DNP. ${note} Regular/playoff only, no preseason.`;
+  try{
+    const data=await apicall({model:'claude-sonnet-4-20250514',max_tokens:500,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:prompt}]});
+    let raw='';for(const b of data.content||[])if(b.type==='text')raw+=b.text;
+    const parsed=parseJ(raw);
+    (parsed.games||[]).forEach((v,i)=>{if(i<7){document.getElementById('g'+i).value=v!=null?v:'';styleCell(i);}});
+    setFill(parsed.note||'Done','ok');toast('Game log filled');
+  }catch(e){setFill('Failed — enter manually','');console.error(e);}
+  finally{btn.disabled=false;}
 }
 
-async function callClaude(body){
-  const res = await fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST', headers:headers(),
-    body:JSON.stringify(body)
-  });
-  if(!res.ok){
-    const t = await res.text();
-    throw new Error(`API ${res.status}: ${t}`);
-  }
-  return res.json();
-}
-
-function parseJSON(raw){
-  raw = raw.replace(/```json|```/g,'').trim();
-  const m = raw.match(/\{[\s\S]*\}/);
-  return JSON.parse(m ? m[0] : raw);
-}
-
+// Scout
 async function runScout(){
-  if(!getKey()){ setScout('Enter your API key first.',false); return; }
-  const player = document.getElementById('player').value.trim();
-  const stat = document.getElementById('stat').value;
-  if(!player){ setScout('Enter a player name first.',false); return; }
-
-  document.getElementById('scoutBtn').disabled = true;
-  document.getElementById('sourceTags').innerHTML = '';
-  setScout('Scouting matchup, injuries, trends...', true);
-
-  const prompt = `You are a sharp NBA betting researcher. Search for and summarize current intelligence about ${player} relevant to their upcoming game's ${stat} prop bet.
-
-Return ONLY valid JSON, no markdown:
-{
-  "context_summary": "<2-4 sentence dense summary: opponent defensive rating vs position, pace, injury/rest status, usage trends, role changes, home/away, back-to-back, lineup news — include specific numbers where found>",
-  "sources_found": ["<source 1>","<source 2>","<source 3>"]
-}
-
-Search for: injury report for ${player}, ${player} usage rate and role this season, upcoming opponent defensive stats vs ${player}'s position, game pace, load management news, recent Lakers lineup changes. Do not invent statistics.`;
-
+  if(!key()){toast('Add API key first');return;}
+  const player=document.getElementById('player').value.trim();
+  const stat=document.getElementById('stat').value;
+  if(!player){toast('Enter player name first');return;}
+  document.getElementById('scoutBtn').disabled=true;
+  document.getElementById('srcTags').innerHTML='';
+  setScout('Scouting matchup, injuries, trends...','pulse');
+  const prompt=`Sharp NBA betting researcher. Search current intel on ${player} for their upcoming ${stat} prop.
+Return ONLY valid JSON:
+{"context_summary":"<2-4 sentences: opponent def rating vs position, pace, injury/rest, usage/role trends, home/away, back-to-back, lineup news — include specific numbers>","sources_found":["<src1>","<src2>","<src3>"]}
+Do not invent statistics.`;
   try{
-    const data = await callClaude({
-      model:'claude-sonnet-4-20250514',
-      max_tokens:1000,
-      tools:[{type:'web_search_20250305',name:'web_search'}],
-      messages:[{role:'user',content:prompt}]
-    });
-    let raw = '';
-    for(const b of data.content||[]){ if(b.type==='text') raw += b.text; }
-    const parsed = parseJSON(raw);
-    const existing = document.getElementById('context').value.trim();
-    const newCtx = parsed.context_summary || '';
-    document.getElementById('context').value = existing ? existing+'\n\n[Auto-scouted]\n'+newCtx : newCtx;
-    document.getElementById('context').classList.add('context-sourced');
-    const tagsEl = document.getElementById('sourceTags');
-    (parsed.sources_found||[]).forEach(s=>{
-      const t = document.createElement('span');
-      t.className='source-tag'; t.textContent=s; tagsEl.appendChild(t);
-    });
-    setScout('Scout complete — edit or add your own intel below.',false,true);
-  }catch(e){
-    setScout('Scout failed: '+e.message,false);
-    console.error(e);
-  }finally{
-    document.getElementById('scoutBtn').disabled=false;
-  }
+    const data=await apicall({model:'claude-sonnet-4-20250514',max_tokens:700,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:prompt}]});
+    let raw='';for(const b of data.content||[])if(b.type==='text')raw+=b.text;
+    const parsed=parseJ(raw);
+    const ctx=document.getElementById('context');
+    const ex=ctx.value.trim();
+    ctx.value=ex?ex+'\n\n[scouted]\n'+(parsed.context_summary||''):parsed.context_summary||'';
+    const te=document.getElementById('srcTags');
+    (parsed.sources_found||[]).forEach(s=>{const t=document.createElement('span');t.className='tag';t.textContent=s;te.appendChild(t);});
+    setScout('Scout complete — edit freely','ok');
+  }catch(e){setScout('Scout failed: '+e.message,'');console.error(e);}
+  finally{document.getElementById('scoutBtn').disabled=false;}
 }
 
+// Analysis
 async function runAnalysis(){
-  if(!getKey()){ showError('Paste your Anthropic API key at the top.'); return; }
-  const player = document.getElementById('player').value.trim();
-  const stat = document.getElementById('stat').value;
-  const line = parseFloat(document.getElementById('line').value);
-  const ctx = document.getElementById('context').value.trim();
-
-  if(!player||isNaN(line)){ showError('Fill in player name and prop line.'); return; }
-
-  const games = ['g1','g2','g3','g4','g5','g6','g7']
-    .map(id=>document.getElementById(id).value)
-    .filter(v=>v!==''&&v!==null&&v!==undefined)
-    .map(Number).filter(n=>!isNaN(n));
-
-  if(games.length<2){ showError('Enter at least 2 recent game values.'); return; }
-
-  const avg = games.reduce((a,b)=>a+b,0)/games.length;
-  const hitRate = Math.round(games.filter(v=>v>line).length/games.length*100);
-
-  document.getElementById('recentAvg').textContent = avg.toFixed(1);
-  document.getElementById('lineDisplay').textContent = line;
-  document.getElementById('hitRate').textContent = hitRate+'%';
-
-  setLoading(true); clearError(); hideResult();
-
-  const prompt = `You are a sharp sports betting analyst. Analyze this NBA player prop and return ONLY valid JSON, no markdown, no preamble.
-
-Player: ${player}
-Stat: ${stat}
-Prop line: ${line}
-Recent games (newest first): ${games.join(', ')}
-Recent average: ${avg.toFixed(2)}
-Hit rate vs line: ${hitRate}%
-Context/intel: ${ctx||'None provided'}
-
-Return exactly:
-{
-  "edge_score": <integer -100 to 100, negative=under edge, positive=over edge>,
-  "direction": <"OVER" or "UNDER" or "NO EDGE">,
-  "confidence": <"HIGH" or "MEDIUM" or "LOW">,
-  "factors": [
-    {"text":"<factor>","type":<"bull" or "bear" or "neutral">},
-    {"text":"<factor>","type":<"bull" or "bear" or "neutral">},
-    {"text":"<factor>","type":<"bull" or "bear" or "neutral">},
-    {"text":"<factor>","type":<"bull" or "bear" or "neutral">}
-  ],
-  "verdict":"<2-3 sentence verdict: is edge real, how much to trust it, what would change the call>"
-}
-
-Be rigorous. Weight scouted context heavily. Consider: recent form vs line, hit rate, sample size, regression risk, matchup, pace, role. Be honest if edge is weak.`;
-
+  if(!key()){showErr('Paste your Anthropic API key at the top.');return;}
+  const player=document.getElementById('player').value.trim();
+  const stat=document.getElementById('stat').value;
+  const line=parseFloat(document.getElementById('line').value);
+  const ctx=document.getElementById('context').value.trim();
+  if(!player||isNaN(line)){showErr('Fill in player name and prop line.');return;}
+  const games=['g0','g1','g2','g3','g4','g5','g6'].map(id=>document.getElementById(id).value).filter(v=>v!==''&&v!=null).map(Number).filter(n=>!isNaN(n));
+  if(games.length<2){showErr('Enter at least 2 recent game values.');return;}
+  const avg=games.reduce((a,b)=>a+b,0)/games.length;
+  const hitRate=Math.round(games.filter(v=>v>line).length/games.length*100);
+  document.getElementById('rAvg').textContent=avg.toFixed(1);
+  document.getElementById('rLine').textContent=line;
+  document.getElementById('rHit').textContent=hitRate+'%';
+  setLoading(true);clearErr();hideResult();
+  const prompt=`Sharp sports betting analyst. Analyze this NBA prop and return ONLY valid JSON, no markdown.
+Player:${player} Stat:${stat} Line:${line}
+Games(newest first):${games.join(',')} Avg:${avg.toFixed(2)} HitRate:${hitRate}%
+Context:${ctx||'None'}
+Return:{"edge_score":<-100 to 100>,"direction":<"OVER"|"UNDER"|"NO EDGE">,"confidence":<"HIGH"|"MEDIUM"|"LOW">,"factors":[{"text":"<factor>","type":<"bull"|"bear"|"neutral">}×4],"verdict":"<2-3 sentences>"}
+Be rigorous. Weight context heavily. Consider form, hit rate, sample size, regression risk, matchup, pace, role. Be honest if edge is weak.`;
   try{
-    const data = await callClaude({
-      model:'claude-sonnet-4-20250514',
-      max_tokens:1000,
-      messages:[{role:'user',content:prompt}]
-    });
-    const raw = data.content?.[0]?.text||'';
-    renderResult(parseJSON(raw), player, stat, line);
-  }catch(e){
-    showError('Analysis failed: '+e.message);
-    console.error(e);
-  }finally{ setLoading(false); }
+    const data=await apicall({model:'claude-sonnet-4-20250514',max_tokens:900,messages:[{role:'user',content:prompt}]});
+    renderResult(parseJ(data.content?.[0]?.text||''),player,stat,line);
+  }catch(e){showErr('Analysis failed: '+e.message);console.error(e);}
+  finally{setLoading(false);}
 }
 
-function renderResult(d, player, stat, line){
-  document.getElementById('resultTitle').textContent = `${player} — ${stat} ${line}`;
-  const badge = document.getElementById('confBadge');
-  badge.textContent = d.confidence;
-  badge.className = 'conf-badge '+({'HIGH':'conf-high','MEDIUM':'conf-med','LOW':'conf-low'}[d.confidence]||'conf-low');
-
-  const score = Math.max(-100,Math.min(100,parseInt(d.edge_score)||0));
-  const fill = document.getElementById('edgeFill');
-  fill.style.transition='none'; fill.style.width='0%'; fill.style.left='50%';
+function renderResult(d,player,stat,line){
+  document.getElementById('resPlayer').textContent=player;
+  document.getElementById('resSub').textContent=stat+' — line '+line;
+  const conf=d.confidence||'LOW';
+  const badge=document.getElementById('confBadge');
+  badge.textContent=conf+' CONF';
+  badge.className='conf c'+conf[0];
+  const score=Math.max(-100,Math.min(100,parseInt(d.edge_score)||0));
+  const fill=document.getElementById('tf');
+  fill.style.transition='none';fill.style.width='0%';fill.style.left='50%';
   setTimeout(()=>{
-    fill.style.transition='width 0.8s cubic-bezier(.4,0,.2,1), left 0.8s cubic-bezier(.4,0,.2,1)';
-    if(score>0){ fill.style.background='var(--green)'; fill.style.left='50%'; fill.style.width=(score/2)+'%'; }
-    else if(score<0){ const p=Math.abs(score)/2; fill.style.background='var(--red)'; fill.style.left=(50-p)+'%'; fill.style.width=p+'%'; }
-    else{ fill.style.background='var(--muted)'; fill.style.left='49.5%'; fill.style.width='1%'; }
+    fill.style.transition='width 0.9s cubic-bezier(.4,0,.2,1),left 0.9s cubic-bezier(.4,0,.2,1)';
+    if(score>0){fill.style.background='var(--green)';fill.style.left='50%';fill.style.width=(score/2)+'%';}
+    else if(score<0){const p=Math.abs(score)/2;fill.style.background='var(--red)';fill.style.left=(50-p)+'%';fill.style.width=p+'%';}
+    else{fill.style.background='var(--text3)';fill.style.left='49.5%';fill.style.width='1%';}
   },80);
-
-  const numEl = document.getElementById('edgeNum');
-  numEl.textContent = (score>0?'+':'')+score;
-  numEl.style.color = score>0?'var(--green)':score<0?'var(--red)':'var(--muted)';
-
-  const dirEl = document.getElementById('dirBadge');
-  dirEl.textContent = d.direction;
-  dirEl.className = 'dir-badge '+({'OVER':'dir-over','UNDER':'dir-under','NO EDGE':'dir-none'}[d.direction]||'dir-none');
-
-  document.getElementById('factorsList').innerHTML = (d.factors||[]).map(f=>
-    `<div class="factor-item">
-      <div class="f-dot ${({'bull':'f-bull','bear':'f-bear','neutral':'f-neut'}[f.type]||'f-neut')}"></div>
-      <span>${f.text}</span>
-    </div>`
-  ).join('');
-
-  document.getElementById('verdictBox').textContent = d.verdict;
-  document.getElementById('resultPanel').classList.add('visible');
+  const se=document.getElementById('eScore');
+  se.textContent=(score>0?'+':'')+score;
+  se.style.color=score>0?'var(--green)':score<0?'var(--red)':'var(--text2)';
+  const dir=document.getElementById('dirBadge');
+  dir.textContent=d.direction;
+  dir.className='dir '+({'OVER':'dO','UNDER':'dU','NO EDGE':'dN'}[d.direction]||'dN');
+  document.getElementById('factorsList').innerHTML=(d.factors||[]).map(f=>`<div class="fac"><div class="fpip ${({'bull':'pb','bear':'pr','neutral':'pn'}[f.type]||'pn')}"></div><span>${f.text}</span></div>`).join('');
+  document.getElementById('verdictBox').textContent=d.verdict;
+  document.getElementById('resultPanel').classList.add('show');
   document.getElementById('resultPanel').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
-function setScout(msg,loading,success){
-  document.getElementById('scoutText').textContent=msg;
-  document.getElementById('scoutDot').classList.toggle('show',loading);
-  document.getElementById('scoutText').style.color=success?'var(--green)':loading?'var(--blue)':'var(--muted)';
+function setFill(msg,state){
+  document.getElementById('fillText').textContent=msg;
+  const d=document.getElementById('fillDot');
+  d.className='sdot'+(state?' '+state:'');
+  document.getElementById('fillText').style.color=state==='ok'?'var(--green)':state==='pulse'?'var(--blue)':'var(--text3)';
 }
-function setLoading(v){ document.getElementById('loadingRow').classList.toggle('show',v); document.getElementById('analyzeBtn').disabled=v; }
-function showError(m){ const e=document.getElementById('errorBox'); e.textContent=m; e.classList.add('show'); }
-function clearError(){ document.getElementById('errorBox').classList.remove('show'); }
-function hideResult(){ document.getElementById('resultPanel').classList.remove('visible'); }
+function setScout(msg,state){
+  document.getElementById('scoutText').textContent=msg;
+  const d=document.getElementById('scoutDot');
+  d.className='sdot'+(state?' '+state:'');
+  document.getElementById('scoutText').style.color=state==='ok'?'var(--green)':state==='pulse'?'var(--blue)':'var(--text3)';
+}
+function setLoading(v){document.getElementById('lbar').classList.toggle('show',v);document.getElementById('analyzeBtn').disabled=v;}
+function showErr(m){const e=document.getElementById('errBox');e.textContent=m;e.classList.add('show');}
+function clearErr(){document.getElementById('errBox').classList.remove('show');}
+function hideResult(){document.getElementById('resultPanel').classList.remove('show');}
+let ttimer=null;
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(ttimer);ttimer=setTimeout(()=>el.classList.remove('show'),2200);}
+document.addEventListener('DOMContentLoaded',()=>{styleCell(0);styleCell(1);});
 </script>
 </body>
 </html>
